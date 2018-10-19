@@ -1,2 +1,5 @@
 [tool.black]
 line-length = 100
+[tool.pytest]
+DJANGO_SETTINGS_MODULE = fedsearch.settings.base
+addopts = --nomigrations --cov=. --ignore=.venv

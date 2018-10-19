@@ -1,0 +1,15 @@
+#python + virtual environment
+.venv
+__pycache__
+.coverage
+.pytest_cache
+.tox
+
+#sqlite db
+db.sqlite3
+
+#VS Code
+.vscode
+
+#local runtime settings
+.env

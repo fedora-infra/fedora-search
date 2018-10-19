@@ -9,20 +9,24 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Package',
+            name="Package",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('summary', models.TextField()),
-                ('description', models.TextField()),
-                ('point_of_contact', models.CharField(max_length=100)),
-                ('icon', models.CharField(max_length=100)),
-                ('upstream_url', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("summary", models.TextField()),
+                ("description", models.TextField()),
+                ("point_of_contact", models.CharField(max_length=100)),
+                ("icon", models.CharField(max_length=100)),
+                ("upstream_url", models.CharField(max_length=100)),
             ],
-        ),
+        )
     ]

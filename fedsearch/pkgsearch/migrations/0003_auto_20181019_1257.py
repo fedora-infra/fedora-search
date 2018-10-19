@@ -8,14 +8,16 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('pkgsearch', '0002_subpackage'),
-    ]
+    dependencies = [("pkgsearch", "0002_subpackage")]
 
     operations = [
         migrations.AlterField(
-            model_name='subpackage',
-            name='package',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subpkgs', to='pkgsearch.Package'),
-        ),
+            model_name="subpackage",
+            name="package",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="subpkgs",
+                to="pkgsearch.Package",
+            ),
+        )
     ]

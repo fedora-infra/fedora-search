@@ -1,4 +1,5 @@
 from django.db import models
+from .managers import PackageManager
 
 
 class Package(models.Model):
@@ -8,6 +9,8 @@ class Package(models.Model):
     point_of_contact = models.CharField(max_length=100)
     icon = models.CharField(max_length=100)
     upstream_url = models.CharField(max_length=100)
+
+    objects = PackageManager()
 
 
 class SubPackage(models.Model):

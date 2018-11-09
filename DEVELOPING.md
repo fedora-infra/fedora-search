@@ -33,7 +33,7 @@ $ sudo dnf install podman
 And then start the postgres container
 
 ```
-$ sudo podman run  --name database -p 5432:5432 -d postgres
+$ podman run  --name database -p 5432:5432 --net=host -d postgres
 ```
 
 You can run the tests with the following command.
@@ -52,11 +52,11 @@ If can then stop the postgres container using the following command
 
 
 ```
-$ sudo podman stop database
+$ podman stop database
 ```
 
 Next time you want to start the container simply run
 
 ```
-$ sudo podman start database
+$ podman start database
 ```

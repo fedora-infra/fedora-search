@@ -16,4 +16,6 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-urlpatterns = [url(r"^admin/", admin.site.urls)]
+from fedsearch.pkgsearch.views import PackageSearchView
+
+urlpatterns = [url(r"^$", PackageSearchView.as_view(), name="search")]

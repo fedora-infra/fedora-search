@@ -15,7 +15,6 @@ class Package(models.Model):
 
 class SubPackage(models.Model):
     name = models.CharField(max_length=100)
-    summary = models.TextField()
-    description = models.TextField()
-    icon = models.CharField(max_length=100)
+    summary = models.TextField(default="no summary", null=True)
+    description = models.TextField(default="no description", null=True)
     package = models.ForeignKey(Package, related_name="subpkgs", on_delete=models.CASCADE)

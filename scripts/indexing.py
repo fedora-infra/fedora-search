@@ -43,54 +43,39 @@ def get_last_active_branch(package):
     print(f"No branch found for {package}")
 
 
-def get_sub_packages(packages, branch):
-    """ Returns a list of Subpackage objects """
-    subpkgs = {}
-    for pkg in packages:
-        data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/pkg/{pkg}")
-        subpkgs[pkg] = {"summary": data.get("summary"), "description": data.get("description")}
-    return subpkgs
-
-
-def get_package_data(package):
+def index_packages(package):
     """ Gather data from a package using mdapi """
     branch = get_last_active_branch(package)
     if branch is not None:
         data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/srcpkg/{package}")
 
-        if data.get("co-packages"):
-            subpkgs = [p for p in data["co-packages"] if p != package]
-            subpkgs = get_sub_packages(subpkgs, branch)
-            data["subpackages"] = subpkgs
+        if data:
 
-        return data
+            print(f"Indexing {package}")
+            package = Package.objects.create(
+                name=data["basename"],
+                summary=data.get("summary"),
+                description=data.get("description"),
+                point_of_contact=packages.get(data["basename"]),
+                icon="",
+                upstream_url=data.get("url"),
+            )
 
-        print(f"No mdapi info found for {package}")
+            for pkg in data.get("co-packages", []):
+                if pkg != package:
+                    data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/pkg/{pkg}")
+                    print(f"Indexing {pkg}")
+                    package.subpkgs.create(
+                        name=pkg, summary=data.get("summary"), description=data.get("description")
+                    )
+            return package
+            print(f"No mdapi info found for {package}")
 
 
 if __name__ == "__main__":
 
     packages = call_api(PACKAGE_LIST_URL).get("rpms")
 
-    with ThreadPoolExecutor(max_workers=30) as executor:
-        for pkg_data in executor.map(get_package_data, packages):
-            if pkg_data:
-                print(f"Indexing {pkg_data['basename']}")
-
-                package = Package.objects.create(
-                    name=pkg_data["basename"],
-                    summary=pkg_data.get("summary"),
-                    description=pkg_data.get("description"),
-                    point_of_contact=packages.get(pkg_data["basename"]),
-                    icon="",
-                    upstream_url=pkg_data.get("url"),
-                )
-
-                subpkgs = pkg_data.get("subpackages")
-                for pkg in subpkgs:
-                    print(f"Indexing {pkg}")
-                    package.subpkgs.create(
-                        name=pkg,
-                        summary=subpkgs[pkg]["summary"],
-                        description=subpkgs[pkg]["description"],
-                    )
+    with ThreadPoolExecutor(max_workers=40) as executor:
+        for pkg_data in executor.map(index_packages, packages):
+            pass

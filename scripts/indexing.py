@@ -26,12 +26,6 @@ def call_api(url):
     return data
 
 
-def get_package_list():
-    """ Gather the list of rpms from src.fp.o """
-    data = call_api(PACKAGE_LIST_URL)
-    return data.get("rpms")
-
-
 def get_last_active_branch(package):
     """ Return the latest active branch for a package """
     data = call_api(f"https://src.fedoraproject.org/api/0/rpms/{package}/git/branches")
@@ -49,12 +43,10 @@ def get_last_active_branch(package):
 
 def get_sub_packages(packages, branch):
     """ Returns a list of Subpackage objects """
-    subpkgs = []
+    subpkgs = {}
     for pkg in packages:
         data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/pkg/{pkg}")
-        subpkgs.append(
-            SubPackage(name=pkg, summary=data.get("summary"), description=data.get("description"))
-        )
+        subpkgs[pkg] = {"summary": data.get("summary"), "description": data.get("description")}
     return subpkgs
 
 
@@ -76,9 +68,9 @@ def get_package_data(package):
 
 if __name__ == "__main__":
 
-    packages = get_package_list()
+    packages = call_api(PACKAGE_LIST_URL).get("rpms")
 
-    with ThreadPoolExecutor(max_workers=40) as executor:
+    with ThreadPoolExecutor(max_workers=30) as executor:
         for pkg_data in executor.map(get_package_data, packages):
             if pkg_data:
                 print(f"Indexing {pkg_data['basename']}")
@@ -92,6 +84,10 @@ if __name__ == "__main__":
                     upstream_url=pkg_data.get("url"),
                 )
 
-                for pkg in pkg_data.get("subpackages"):
-                    pkg.package = package
-                    pkg.save()
+                subpkgs = pkg_data.get("subpackages")
+                for pkg in subpkgs:
+                    package.subpkgs.create(
+                        name=pkg,
+                        summary=subpkgs[pkg]["summary"],
+                        description=subpkgs[pkg]["description"],
+                    )

@@ -4,7 +4,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 import django
 import requests
-from tenacity import retry, stop_after_attempt
 
 django.setup()
 
@@ -15,6 +14,8 @@ LOGGER = logging.getLogger(__name__)
 PACKAGE_LIST_URL = "https://src.fedoraproject.org/extras/pagure_poc.json"
 
 SESSION = requests.Session()
+adapter = requests.adapters.HTTPAdapter(max_retries=20)
+SESSION.mount("https://", adapter)
 
 
 def call_api(url):
@@ -30,13 +31,14 @@ def get_last_active_branch(package):
     """ Return the latest active branch for a package """
     data = call_api(f"https://src.fedoraproject.org/api/0/rpms/{package}/git/branches")
     results = data.get("branches")
-    branches = []
-    for branch in results:
-        if re.match(r"^f\d+$", branch):
-            branches.append(int(branch.strip("f")))
+    if results:
+        branches = []
+        for branch in results:
+            if re.match(r"^f\d+$", branch):
+                branches.append(int(branch.strip("f")))
 
-    if branches:
-        return max(branches)
+        if branches:
+            return max(branches)
 
     print(f"No branch found for {package}")
 
@@ -50,7 +52,6 @@ def get_sub_packages(packages, branch):
     return subpkgs
 
 
-@retry(stop=stop_after_attempt(5))
 def get_package_data(package):
     """ Gather data from a package using mdapi """
     branch = get_last_active_branch(package)
@@ -58,7 +59,8 @@ def get_package_data(package):
         data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/srcpkg/{package}")
 
         if data.get("co-packages"):
-            subpkgs = get_sub_packages(data.get("co-packages"), branch)
+            subpkgs = [p for p in data["co-packages"] if p != package]
+            subpkgs = get_sub_packages(subpkgs, branch)
             data["subpackages"] = subpkgs
 
         return data
@@ -86,6 +88,7 @@ if __name__ == "__main__":
 
                 subpkgs = pkg_data.get("subpackages")
                 for pkg in subpkgs:
+                    print(f"Indexing {pkg}")
                     package.subpkgs.create(
                         name=pkg,
                         summary=subpkgs[pkg]["summary"],

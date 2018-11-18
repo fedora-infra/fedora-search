@@ -25,7 +25,7 @@ SECRET_KEY = "change-this-in-production"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -80,7 +80,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "postgres",
         "USER": "postgres",
-        "HOST": "localhost",
+        "PASSWORD": "tgvR5iKH2dQVvLmP",
+        "HOST": "postgresql.fedora-search.svc",
         "PORT": 5432,
     }
 }

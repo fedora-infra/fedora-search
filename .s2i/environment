@@ -1,0 +1,4 @@
+DISABLE_MIGRATE=1
+UPGRADE_PIP_TO_LATEST=1
+APP_MODULE=fedsearch.wsgi:application
+DJANGO_SETTINGS_MODULE=fedsearch.settings.base

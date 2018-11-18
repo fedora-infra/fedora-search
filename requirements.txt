@@ -2,3 +2,4 @@ django == 1.11.16
 djangorestframework
 psycopg2-binary
 gunicorn
+requests

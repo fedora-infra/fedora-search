@@ -70,7 +70,7 @@ def index_packages():
 
                 if data:
                     print(f"Indexing {package}")
-                    package = Package.objects.create(
+                    package_obj = Package.objects.create(
                         name=data["basename"],
                         summary=data.get("summary"),
                         description=data.get("description"),
@@ -81,7 +81,7 @@ def index_packages():
 
                     for pkg in data.get("co-packages", []):
                         if pkg != package:
-                            data = (pkg, branch, package)
+                            data = (pkg, branch, package_obj)
                             Q.put(data)
 
                     Q.task_done()

@@ -1,6 +1,8 @@
 import logging
 import re
-from concurrent.futures import ThreadPoolExecutor
+
+from queue import Queue
+from threading import Thread
 
 import django
 import requests
@@ -16,6 +18,8 @@ PACKAGE_LIST_URL = "https://src.fedoraproject.org/extras/pagure_poc.json"
 SESSION = requests.Session()
 adapter = requests.adapters.HTTPAdapter(max_retries=20)
 SESSION.mount("https://", adapter)
+
+Q = Queue()
 
 
 def call_api(url):
@@ -43,39 +47,56 @@ def get_last_active_branch(package):
     print(f"No branch found for {package}")
 
 
-def index_packages(package):
+def index_packages():
     """ Gather data from a package using mdapi """
-    branch = get_last_active_branch(package)
-    if branch is not None:
-        data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/srcpkg/{package}")
+    while True:
+        package = Q.get()
 
-        if data:
+        if type(package) is tuple:
 
-            print(f"Indexing {package}")
-            package = Package.objects.create(
-                name=data["basename"],
-                summary=data.get("summary"),
-                description=data.get("description"),
-                point_of_contact=packages.get(data["basename"]),
-                icon="",
-                upstream_url=data.get("url"),
+            pkg, branch, parrent = package
+            data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/pkg/{pkg}")
+            print(f"Indexing Subpackage {pkg}")
+            parrent.subpkgs.create(
+                name=pkg, summary=data.get("summary"), description=data.get("description")
             )
+            Q.task_done()
 
-            for pkg in data.get("co-packages", []):
-                if pkg != package:
-                    data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/pkg/{pkg}")
-                    print(f"Indexing {pkg}")
-                    package.subpkgs.create(
-                        name=pkg, summary=data.get("summary"), description=data.get("description")
+        else:
+
+            branch = get_last_active_branch(package)
+            if branch is not None:
+                data = call_api(f"https://apps.fedoraproject.org/mdapi/f{branch}/srcpkg/{package}")
+
+                if data:
+                    print(f"Indexing {package}")
+                    package = Package.objects.create(
+                        name=data["basename"],
+                        summary=data.get("summary"),
+                        description=data.get("description"),
+                        point_of_contact=packages.get(data["basename"]),
+                        icon="",
+                        upstream_url=data.get("url"),
                     )
-            return package
-            print(f"No mdapi info found for {package}")
+
+                    for pkg in data.get("co-packages", []):
+                        if pkg != package:
+                            data = (pkg, branch, package)
+                            Q.put(data)
+
+                    Q.task_done()
 
 
 if __name__ == "__main__":
 
     packages = call_api(PACKAGE_LIST_URL).get("rpms")
 
-    with ThreadPoolExecutor(max_workers=40) as executor:
-        for pkg_data in executor.map(index_packages, packages):
-            pass
+    for i in range(40):
+        worker = Thread(target=index_packages)
+        worker.setDaemon(True)
+        worker.start()
+
+    for package in packages:
+        Q.put(package)
+
+    Q.join()

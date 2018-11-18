@@ -87,8 +87,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "postgres",
         "USER": "postgres",
-        "PASSWORD": "tgvR5iKH2dQVvLmP",
-        "HOST": "postgresql.fedora-search.svc",
+        "HOST": "localhost",
         "PORT": 5432,
     }
 }

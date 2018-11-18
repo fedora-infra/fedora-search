@@ -25,3 +25,15 @@ class PackageSerializerTests(TestCase):
             }
         )
         assert serializer.is_valid() is False
+
+    def test_serialize_with_subpackages(self):
+        """ Ensure that we serialize the Package object with a list
+        of Subpackes """
+        subpackage1 = mixer.blend("pkgsearch.SubPackage")
+        subpackage2 = mixer.blend("pkgsearch.SubPackage")
+        package = mixer.blend("pkgsearch.Package")
+        package.subpkgs.add(subpackage1)
+        package.subpkgs.add(subpackage2)
+        serializer = PackageSerializer(package)
+        print(serializer.data["subpkgs"])
+        assert serializer.data["subpkgs"] == [subpackage2.name, subpackage1.name]

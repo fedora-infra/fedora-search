@@ -18,3 +18,6 @@ class SubPackage(models.Model):
     summary = models.TextField(default="no summary", null=True)
     description = models.TextField(default="no description", null=True)
     package = models.ForeignKey(Package, related_name="subpkgs", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name}"

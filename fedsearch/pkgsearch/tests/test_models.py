@@ -39,21 +39,21 @@ class PackageTests(TestCase):
     def test_text_search_name(self):
         """Ensure we search a package using the name."""
         create_pkgs()
-        r = Package.objects.search("tmux").values_list("name")
+        r = Package.objects.search("tmux", unittest=True).values_list("name")
         expected = [("tmux",)]
         self.assertSequenceEqual(expected, r.all())
 
     def test_text_search_summary(self):
         """Ensure we search a package using the summary."""
         create_pkgs()
-        r = Package.objects.search("terminal").values_list("name")
+        r = Package.objects.search("terminal", unittest=True).values_list("name")
         expected = [("mate-terminal",), ("gnome-terminal",), ("tmux",)]
         self.assertSequenceEqual(expected, r.all())
 
     def test_text_search_description(self):
         """Ensure we search a package using the description."""
         create_pkgs()
-        r = Package.objects.search("multiple").values_list("name")
+        r = Package.objects.search("multiple", unittest=True).values_list("name")
         expected = [("mate-terminal",), ("gnome-terminal",)]
         self.assertSequenceEqual(expected, r.all())
 

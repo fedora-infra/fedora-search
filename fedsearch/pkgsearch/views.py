@@ -11,7 +11,11 @@ class PackageSearchView(APIView):
         paginator = pagination_class()
 
         query = request.query_params.get("q")
-        queryset = Package.objects.search(query)
+
+        # Disable the Trigram search if we are running unit tests
+        unittest = request.query_params.get("unittest", False)
+
+        queryset = Package.objects.search(query, unittest=unittest)
 
         page = paginator.paginate_queryset(queryset, request)
         if page is not None:

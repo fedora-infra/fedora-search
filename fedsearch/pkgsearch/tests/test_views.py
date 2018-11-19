@@ -12,13 +12,13 @@ class PackageViewTests(APITestCase):
 
     def test_search_package_name(self):
         url = reverse("search")
-        response = self.client.get(url, {"q": "gnome-terminal"})
+        response = self.client.get(url, {"q": "gnome-terminal", "unittest": True})
         assert response.status_code == status.HTTP_200_OK
         assert response.data["results"][0]["name"] == "gnome-terminal"
 
     def test_search_package_summary(self):
         url = reverse("search")
-        response = self.client.get(url, {"q": "terminal"})
+        response = self.client.get(url, {"q": "terminal", "unittest": True})
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data["results"]) == 3
         assert response.data["results"][0]["name"] == "mate-terminal"

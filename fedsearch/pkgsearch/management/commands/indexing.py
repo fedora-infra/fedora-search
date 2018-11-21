@@ -6,6 +6,7 @@ from threading import Thread
 import requests
 
 from django.core.management.base import BaseCommand
+from django.contrib.postgres.search import SearchVector
 from fedsearch.pkgsearch.models import Package, SubPackage  # NOQA
 
 
@@ -79,12 +80,19 @@ class Command(BaseCommand):
                             upstream_url=data.get("url"),
                         )
 
+                        package_obj.search_vector = (
+                            SearchVector("name", weight="A", config="english")
+                            + SearchVector("summary", weight="B", config="english")
+                            + SearchVector("description", weight="D", config="english")
+                        )
+                        package_obj.save()
+
                         for pkg in data.get("co-packages", []):
                             if pkg != package:
                                 data = (pkg, branch, package_obj)
                                 self.Q.put(data)
 
-            self.Q.task_done()
+                        self.Q.task_done()
 
     def handle(self, *args, **options):
 

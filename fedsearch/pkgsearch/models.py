@@ -1,6 +1,8 @@
 from django.db import models
 from .managers import PackageManager
 
+from django.contrib.postgres.search import SearchVectorField
+
 
 class Package(models.Model):
     name = models.CharField(max_length=100)
@@ -9,6 +11,7 @@ class Package(models.Model):
     point_of_contact = models.CharField(max_length=100)
     icon = models.CharField(max_length=100, default="package_128x128.png", null=True)
     upstream_url = models.CharField(max_length=150, default="no url", null=True)
+    search_vector = SearchVectorField(null=True)
 
     objects = PackageManager()
 

@@ -8,4 +8,12 @@ class PackageSerializer(ModelSerializer):
 
     class Meta:
         model = Package
-        fields = "__all__"
+        fields = [
+            "name",
+            "summary",
+            "description",
+            "point_of_contact",
+            "icon",
+            "upstream_url",
+            "subpkgs",
+        ]

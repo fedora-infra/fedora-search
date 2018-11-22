@@ -1,10 +1,16 @@
-from rest_framework.serializers import ModelSerializer, StringRelatedField
+from rest_framework.serializers import ModelSerializer
 
-from fedsearch.pkgsearch.models import Package
+from fedsearch.pkgsearch.models import Package, SubPackage
+
+
+class SubPackageSerializer(ModelSerializer):
+    class Meta:
+        model = SubPackage
+        fields = ["name", "summary", "description"]
 
 
 class PackageSerializer(ModelSerializer):
-    subpkgs = StringRelatedField(many=True)
+    subpkgs = SubPackageSerializer(many=True)
 
     class Meta:
         model = Package

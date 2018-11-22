@@ -95,7 +95,6 @@ class Command(BaseCommand):
                         self.Q.task_done()
 
     def handle(self, *args, **options):
-
         for i in range(40):
             worker = Thread(target=self.index_packages)
             worker.setDaemon(True)

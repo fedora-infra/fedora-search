@@ -2,6 +2,7 @@ from django.db import models
 from .managers import PackageManager
 
 from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 
 class Package(models.Model):
@@ -14,6 +15,9 @@ class Package(models.Model):
     search_vector = SearchVectorField(null=True)
 
     objects = PackageManager()
+
+    class Meta:
+        indexes = [GinIndex(fields=["search_vector"])]
 
 
 class SubPackage(models.Model):

@@ -2,8 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.settings import api_settings
 
-from fedsearch.pkgsearch.models import Package
-from fedsearch.pkgsearch.serializers import PackageSearchSerializer, PackageSerializer
+from fedsearch.pkgsearch.models import Package, SubPackage
+from fedsearch.pkgsearch.serializers import (
+    PackageSearchSerializer,
+    PackageSerializer,
+    SubPackageSerializer,
+)
 
 
 class PackageSearchView(APIView):
@@ -32,3 +36,8 @@ class PackageSearchView(APIView):
 class PackageViewSet(ModelViewSet):
     serializer_class = PackageSerializer
     queryset = Package.objects.all()
+
+
+class SubPackageViewSet(ModelViewSet):
+    serializer_class = SubPackageSerializer
+    queryset = SubPackage.objects.all()

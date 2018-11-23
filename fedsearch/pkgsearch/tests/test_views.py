@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
 from fedsearch.pkgsearch.tests.utils import create_pkgs
-from fedsearch.pkgsearch.models import Package
+from fedsearch.pkgsearch.models import Package, SubPackage
 
 
 class PackageSearchViewTests(APITestCase):
@@ -40,3 +40,12 @@ class PackageViewTests(APITestCase):
         url = reverse("package-detail", kwargs={"pk": package.pk})
         response = self.client.get(url)
         assert response.data["name"] == "foo"
+
+
+class SubPackageViewTests(APITestCase):
+    def test_package_view(self):
+        package = Package.objects.create(name="foo", point_of_contact="bar")
+        subpackage = SubPackage.objects.create(name="subfoo", package=package)
+        url = reverse("subpackage-detail", kwargs={"pk": subpackage.pk})
+        response = self.client.get(url)
+        assert response.data["name"] == "subfoo"

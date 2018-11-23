@@ -25,8 +25,14 @@ class PackageSerializer(ModelSerializer):
         ]
 
 
+class SubPackageSearchSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = SubPackage
+        fields = ["url", "name", "summary"]
+
+
 class PackageSearchSerializer(HyperlinkedModelSerializer):
-    subpkgs = SubPackageSerializer(many=True)
+    subpkgs = SubPackageSearchSerializer(many=True)
 
     class Meta:
         model = Package

@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer
 
 from fedsearch.pkgsearch.models import Package, SubPackage
 
@@ -23,3 +23,11 @@ class PackageSerializer(ModelSerializer):
             "upstream_url",
             "subpkgs",
         ]
+
+
+class PackageSearchSerializer(HyperlinkedModelSerializer):
+    subpkgs = SubPackageSerializer(many=True)
+
+    class Meta:
+        model = Package
+        fields = ["url", "name", "summary", "subpkgs"]

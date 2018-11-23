@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.settings import api_settings
 
 from fedsearch.pkgsearch.models import Package
-from fedsearch.pkgsearch.serializers import PackageSerializer
+from fedsearch.pkgsearch.serializers import PackageSearchSerializer, PackageSerializer
 
 
 class PackageSearchView(APIView):
@@ -20,10 +20,10 @@ class PackageSearchView(APIView):
 
         page = paginator.paginate_queryset(queryset, request)
         if page is not None:
-            serializer = PackageSerializer(page, many=True)
+            serializer = PackageSearchSerializer(page, context={"request": request}, many=True)
             results = paginator.get_paginated_response(serializer.data)
         else:
-            serializer = PackageSerializer(queryset, many=True)
+            serializer = PackageSearchSerializer(queryset, context={"request": request}, many=True)
             results = serializer.data
 
         return results

@@ -26,6 +26,13 @@ class PackageSearchViewTests(APITestCase):
         assert response.data["results"][1]["name"] == "gnome-terminal"
         assert response.data["results"][2]["name"] == "tmux"
 
+    def test_get_package_url(self):
+        url = reverse("search")
+        response = self.client.get(url, {"q": "terminal", "unittest": True})
+        package = Package.objects.all().filter(name="mate-terminal")
+        package_url = reverse("package-detail", kwargs={"pk": package[0].pk})
+        assert package_url in response.data["results"][0]["url"]
+
 
 class PackageViewTests(APITestCase):
     def test_package_view(self):

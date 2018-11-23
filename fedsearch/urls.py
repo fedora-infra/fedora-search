@@ -15,6 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url
 
-from fedsearch.pkgsearch.views import PackageSearchView
+from fedsearch.pkgsearch.views import PackageSearchView, PackageViewSet
+from rest_framework import routers
 
-urlpatterns = [url(r"^$", PackageSearchView.as_view(), name="search")]
+router = routers.SimpleRouter()
+router.register(r"package", PackageViewSet)
+
+router.urls.append(url(r"^$", PackageSearchView.as_view(), name="search"))
+
+urlpatterns = router.urls

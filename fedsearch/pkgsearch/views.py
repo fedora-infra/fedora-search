@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.settings import api_settings
 
 from fedsearch.pkgsearch.models import Package
@@ -26,3 +27,8 @@ class PackageSearchView(APIView):
             results = serializer.data
 
         return results
+
+
+class PackageViewSet(ModelViewSet):
+    serializer_class = PackageSerializer
+    queryset = Package.objects.all()
